@@ -71,4 +71,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'bill-tracker-system.firebasestorage.app',
     iosBundleId: 'com.example.billTracker',
   );
+
 }
