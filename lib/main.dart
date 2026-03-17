@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart'; // FlutterFire CLI'ın oluşturduğu dosya
+import 'package:bill_tracker/views/auth/login_view.dart';
 
 void main() async {
   // 1. Flutter motorunun (Engine) tamamen hazır olduğundan emin oluyoruz.
@@ -10,7 +11,6 @@ void main() async {
   // 2. Uygulama ayağa kalkmadan önce Firebase ile el sıkışıyoruz.
   // 'await' kullanarak bu işlemin bitmesini bekliyoruz.
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
   runApp(const MyApp());
 }
 
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true, // Modern Material 3 tasarımı
       ),
-      home: const FirebaseTestPage(),
+      home: const LoginView(),
     );
   }
 }
