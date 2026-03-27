@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import '../../widgets/custom_textfield.dart';
 import '../../widgets/custom_button.dart';
-import 'register_view.dart';
-// 👇 13. Gün: AuthService importunu eklemeyi unutma (yolu kendine göre kontrol et)
-// import '../../services/auth_service.dart';
+import '../../services/auth_service.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class RegisterView extends StatefulWidget {
+  const RegisterView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<RegisterView> createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegisterViewState extends State<RegisterView> {
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
@@ -26,15 +27,15 @@ class _LoginViewState extends State<LoginView> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Container(
-            height: MediaQuery.of(context).size.height - 100,
+            height: MediaQuery.of(context).size.height - 50,
             alignment: Alignment.center,
             child: Form(
               key: _formKey,
               child: Column(
                 children: [
-                  const Spacer(flex: 2),
+                  const Spacer(flex: 1),
 
-                  // Üstteki İkon Kutusu
+                  // Üstteki İkon
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -48,15 +49,29 @@ class _LoginViewState extends State<LoginView> {
                     ),
                   ),
                   const SizedBox(height: 24),
+
                   const Text(
-                    "Welcome Back",
+                    "Create Account",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                   const Text(
-                    "Sign in to manage your bills",
+                    "Start tracking your bills today",
                     style: TextStyle(color: Colors.grey),
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 32),
+
+                  // Full Name Alanı
+                  CustomTextField(
+                    label: "Full Name",
+                    hintText: "John Doe",
+                    controller: _fullNameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return "Ad Soyad boş olamaz";
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
 
                   // Email Alanı
                   CustomTextField(
@@ -71,12 +86,12 @@ class _LoginViewState extends State<LoginView> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-                  // Şifre Alanı
+                  // Password Alanı
                   CustomTextField(
                     label: "Password",
-                    hintText: "Enter your password",
+                    hintText: "Create a password",
                     controller: _passwordController,
                     isPassword: true,
                     suffixIcon: const Icon(Icons.visibility_outlined),
@@ -88,50 +103,62 @@ class _LoginViewState extends State<LoginView> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 20),
 
-                  // Forgot Password
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: () {
-                        // İleride şifre sıfırlama eklenebilir
-                      },
-                      child: const Text(
-                        "Forgot password?",
-                        style: TextStyle(color: Color(0xFF2D7A78)),
-                      ),
-                    ),
+                  // Confirm Password Alanı
+                  CustomTextField(
+                    label: "Confirm Password",
+                    hintText: "Confirm your password",
+                    controller: _confirmPasswordController,
+                    isPassword: true,
+                    suffixIcon: const Icon(Icons.visibility_outlined),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return "Şifre tekrarı boş olamaz";
+                      if (value != _passwordController.text)
+                        return "Şifreler eşleşmiyor!";
+                      return null;
+                    },
                   ),
-                  const SizedBox(height: 16),
 
-                  // 🚀 13. GÜN: FIREBASE LOGIN İŞLEMİ
+                  const SizedBox(height: 32),
+
+                  // 🚀 13. GÜN: FIREBASE BAĞLANTISI VE HATA YAKALAMA
                   _isLoading
                       ? const CircularProgressIndicator(
                           color: Color(0xFF2D7A78),
                         )
                       : CustomButton(
-                          text: "Sign In",
+                          text: "Create Account",
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               setState(() => _isLoading = true);
 
                               try {
-                                // 👇 Gerçek Login Fonksiyonu
-                                // await AuthService().loginWithEmail(
-                                //   email: _emailController.text.trim(),
-                                //   password: _passwordController.text.trim(),
-                                // );
+                                // 👇 BURASI KRİTİK: Firebase'e kayıt isteği gönderiyoruz
+                                await AuthService().registerWithEmail(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                );
 
+                                // Başarılı olursa:
                                 if (mounted) {
-                                  print("Giriş başarılı!");
-                                  // Buraya ana sayfaya yönlendirme kodu gelecek (Day 14-15)
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Account created! Welcome Hilal!",
+                                      ),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                  Navigator.pop(context); // Login'e geri dön
                                 }
                               } catch (e) {
-                                // 👇 Hata Yakalama ve Kullanıcıya Gösterme
+                                // 👇 HATA YAKALAMA: Firebase'den gelen hatayı kullanıcıya göster
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text("Hata: ${e.toString()}"),
+                                      content: Text("Error: ${e.toString()}"),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -145,22 +172,15 @@ class _LoginViewState extends State<LoginView> {
 
                   const SizedBox(height: 32),
 
-                  // Kayıt Ol Sayfasına Yönlendirme
+                  // Giriş Sayfasına Dönüş
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Don't have an account? "),
+                      const Text("Already have an account? "),
                       GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RegisterView(),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pop(context),
                         child: const Text(
-                          "Sign up",
+                          "Sign in",
                           style: TextStyle(
                             color: Color(0xFF2D7A78),
                             fontWeight: FontWeight.bold,
@@ -169,7 +189,7 @@ class _LoginViewState extends State<LoginView> {
                       ),
                     ],
                   ),
-                  const Spacer(flex: 3),
+                  const Spacer(flex: 2),
                 ],
               ),
             ),

@@ -6,6 +6,7 @@ class CustomTextField extends StatelessWidget {
   final bool isPassword;
   final TextEditingController controller;
   final Widget? suffixIcon;
+  final String? Function(String?)? validator; // Doğrulama fonksiyonu ekledik
 
   const CustomTextField({
     super.key,
@@ -14,6 +15,7 @@ class CustomTextField extends StatelessWidget {
     required this.controller,
     this.isPassword = false,
     this.suffixIcon,
+    this.validator, // Constructor'a ekledik
   });
 
   @override
@@ -26,9 +28,10 @@ class CustomTextField extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const SizedBox(height: 8),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: isPassword,
+          validator: validator, // Validator'ı bağladık
           decoration: InputDecoration(
             hintText: hintText,
             filled: true,
