@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/custom_textfield.dart';
 import '../../widgets/custom_button.dart';
 import 'register_view.dart';
-// 👇 13. Gün: AuthService importunu eklemeyi unutma (yolu kendine göre kontrol et)
-// import '../../services/auth_service.dart';
+import '../../services/auth_service.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -104,7 +103,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   const SizedBox(height: 16),
 
-                  // 🚀 13. GÜN: FIREBASE LOGIN İŞLEMİ
+                  // FIREBASE LOGIN İŞLEMİ
                   _isLoading
                       ? const CircularProgressIndicator(
                           color: Color(0xFF2D7A78),
@@ -116,14 +115,17 @@ class _LoginViewState extends State<LoginView> {
                               setState(() => _isLoading = true);
 
                               try {
-                                // 👇 Gerçek Login Fonksiyonu
-                                // await AuthService().loginWithEmail(
-                                //   email: _emailController.text.trim(),
-                                //   password: _passwordController.text.trim(),
-                                // );
+                                // Gerçek Login Fonksiyonu
+                                await AuthService().loginWithEmail(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                );
 
                                 if (mounted) {
-                                  print("Giriş başarılı!");
+                                  //print("Giriş başarılı!");
+                                  Navigator.of(
+                                    context,
+                                  ).popUntil((route) => route.isFirst);
                                   // Buraya ana sayfaya yönlendirme kodu gelecek (Day 14-15)
                                 }
                               } catch (e) {
